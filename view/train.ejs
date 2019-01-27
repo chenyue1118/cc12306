@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/x-icon" href="images/icon/cc.ico" />
+    <link rel="stylesheet" href="/css/reset.css">
+    <title>12306的订票/抢票</title>
+    <style media="screen">
+      .wrapper{
+        width: 100%;
+      }
+      .header{
+        width: 100%;
+        height: 100px;
+        background: #d2d2d2;
+        border-bottom: 1px solid #abc;
+      }
+      .header-wrapper{
+        width: 1000px;
+        height: 100px;
+        margin: 0 auto;
+        font-size: 0;
+      }
+      .header-title{
+        display: inline-block;
+        height: 100px;
+        width: 90%;
+        line-height: 100px;
+        font-size: 24px;
+        vertical-align: top;
+      }
+      .header-signin{
+        display: inline-block;
+        width: 10%;
+        height: 100px;
+        line-height: 100px;
+        text-align: right;
+        font-size: 20px;
+        color: #333;
+        cursor: pointer;
+      }
+      .info{
+        width: 100%;
+        height: 80px;
+        margin-top: 20px;
+      }
+      .info-wrapper{
+        width: 1000px;
+        height: 80px;
+        margin: 0 auto;
+        padding-top: 18px;
+        border: 1px solid #298cce;
+        border-radius: 5px;
+        -webkit-border-radius: 5px;
+        font-size: 0;
+      }
+      .info-start, .info-end{
+        display: inline-block;
+        width: 230px;
+        height: 40px;
+        font-size: 0;
+      }
+      .info-start-title, .info-end-title{
+        display: inline-block;
+        width: 80px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: #333;
+        text-align: center;
+      }
+      .info-start-city, .info-end-city{
+        display: inline-block;
+        width: 150px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: #333;
+        text-indent: 1em;
+        border: 1px solid #d1d1d1;
+        outline: 0;
+      }
+      .info-start-city:focus, .info-end-city:focus{
+        border: 1px solid #f00;
+        outline: 0;
+      }
+      .info-change{
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        margin: 0 20px;
+        line-height: 40px;
+        text-align: center;
+        font-size: 14px;
+        background: #2477E3;
+        border-radius: 50%;
+        -webkit-border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.5s;
+        -webkit-transition: all 0.5s;
+      }
+      .info-date{
+        display: inline-block;
+        width: 240px;
+        height: 40px;
+        margin-left: 30px;
+      }
+      .info-date-title{
+        display: inline-block;
+        width: 80px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: #333;
+      }
+      .info-date-time{
+        display: inline-block;
+        width: 160px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        text-indent: 1em;
+
+        outline: 0;
+      }
+      .info-search{
+        display: inline-block;
+        width: 80px;
+        height: 40px;
+        margin-left: 50px;
+        line-height: 40px;
+        text-align: center;
+        font-size: 14px;
+        color: #fff;
+        background: #a00;
+        cursor: pointer;
+      }
+      .content{
+        width: 1000px;
+        margin: 0 auto;
+        margin-top: 20px;
+      }
+      .content-table{
+        width: 100%;
+        border: 1px solid #12ddaa;
+      }
+      .content-table thead tr{
+        background: #2477E3;
+        display: flex;
+        display: -webkit-flex;
+      }
+      .content-table tbody tr{
+        display: flex;
+        display: -webkit-flex;
+      }
+      .content-table tr td{
+        padding: 10px 0;
+        text-align: center;
+        color: #fff;
+        flex: 1;
+        -webkit-flex: 1;
+      }
+      .content-table tbody tr td{
+        color: #666;
+      }
+      .content-table tr td{
+        border-right: 1px solid #d1d1d1;
+      }
+      .content-table tr td:last-child{
+        border-right: none;
+      }
+      .content-table tbody tr{
+        border-bottom: 1px solid #d2d2d2;
+      }
+      .content-item{
+        height: 60px;
+        line-height: 40px;
+      }
+      .content-p{
+        height: 20px;
+        font-size: 14px;
+      }
+      .content-price{
+        background: #d1d1d1;
+      }
+      .content-price td{
+        color: #f00!important;
+      }
+      .footer{
+        display: none;
+        width: 100%;
+        height: 100px;
+        line-height: 100px;
+        text-align: center;
+      }
+
+      .mask{
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        background: rgba(255,255,255,0.8);
+      }
+      .signin-wrapper{
+        display: none;
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        z-index: 11;
+        width: 500px;
+        margin-left: -250px;
+        border: 1px solid #444;
+      }
+      .signin-close-wrapper{
+        width: 100%;
+        height: 60px;
+      }
+      .signin-close-s{
+        display: inline-block;
+        width: 430px;
+        height: 60px;
+        vertical-align: top;
+      }
+      .signin-close{
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        text-align: center;
+        font-size: 24px;
+        cursor: pointer;
+      }
+      .signin-name-wrapper, .signin-pass-wrapper{
+        width: 80%;
+        height: 40px;
+        margin: 0 auto;
+        margin-bottom: 20px;
+        font-size: 0;
+      }
+      .signin-name, .signin-pass{
+        display: inline-block;
+        width: 20%;
+        height: 40px;
+        padding-right: 16px;
+        font-size: 14px;
+        text-align: right;
+      }
+      .signin-name-val, .signin-pass-val{
+        display: inline-block;
+        width: 80%;
+        height: 40px;
+        text-indent: 1em;
+        font-size: 14px;
+      }
+      .signin-name-val:focus, .signin-pass-val:focus{
+        border: 1px solid #abcdef;
+      }
+      .signin-img-wrapper{
+        position: relative;
+        width: 300px;
+        height: 200px;
+        margin: 0 auto;
+      }
+      .signin-img{
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 11;
+      }
+      .singin-img-tt{
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 111;
+        width: 300px;
+        height: 200px
+      }
+      .singin-img-tt-title{
+        width: 100%;
+        height: 30px;
+        line-height: 30px;
+        text-align: right;
+        padding-right: 14px;
+        font-size: 14px;
+        color: #333;
+        cursor: pointer;
+      }
+      .singin-img-tt-u{
+        width: 300px;
+        height: 160px;
+      }
+      .singin-img-tt-i{
+        display: inline-block;
+        width: 70px;
+        height: 80px;
+        background: transparent;
+      }
+      .signin-submit{
+        width: 300px;
+        height: 40px;
+        line-height: 40px;
+        margin: 10px auto;
+        text-align: center;
+        font-size: 14px;
+        background: #abcdef;
+        color: #fff;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="header">
+        <div class="header-wrapper">
+          <div class="header-title">
+            支持中文查询火车票
+          </div>
+          <div class="header-signin">
+            登录
+          </div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div class="nav-wrapper">
+
+        </div>
+      </div>
+
+      <div class="info">
+        <div class="info-wrapper">
+          <div class="info-start">
+            <span class="info-start-title">出发地</span>
+            <input class="info-start-city" type="text" name="start_city" value="北京" placeholder="请输入汉字"/>
+          </div>
+          <div class="info-change" data-index=0>
+            换
+          </div>
+          <div class="info-end">
+            <span class="info-end-title">目的地</span>
+            <input class="info-end-city" type="text" name="start_city" value="上海" placeholder="请输入汉字"/>
+          </div>
+          <div class="info-date">
+            <span class="info-date-title">出发日期</span>
+            <input class="info-date-time" type="text" name="start_time" value="" placeholder="请填写日期" />
+          </div>
+          <div class="info-search">
+            搜索
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <table class="content-table">
+          <thead>
+            <tr>
+              <td>车次</td>
+              <td> <p>出发站</p>   <p>到达站</p></td>
+              <td> <p>出发时间</p> <p>到达时间</p></td>
+              <td>历时</td>
+              <td>商务座</td>
+              <td>一等座</td>
+              <td>二等座</td>
+              <td>高级软卧</td>
+              <td>软卧</td>
+              <td>动卧</td>
+              <td>硬卧</td>
+              <td>软座</td>
+              <td>硬座</td>
+              <td>无座</td>
+              <td>备注</td>
+            </tr>
+          </thead>
+          <tbody class="content-tbody">
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer">
+          以上数据均来自12306
+      </div>
+
+    </div>
+    <!-- =================================== -->
+    <div class="mask"></div>
+    <div class="signin-wrapper">
+      <div class="signin-close-wrapper">
+        <i class="signin-close-s"></i>
+        <span class="signin-close">X</span>
+      </div>
+      <div class="signin-name-wrapper">
+        <span class="signin-name">用户名：</span>
+        <input class="signin-name-val" type="text" name="name" value="">
+      </div>
+      <div class="signin-pass-wrapper">
+        <span class="signin-pass">密码：</span>
+        <input class="signin-pass-val" type="text" name="name" value="">
+      </div>
+      <div class="signin-img-wrapper">
+        <img class="signin-img" src="#" alt="" />
+        <div class="singin-img-tt">
+          <div class="singin-img-tt-title">刷新</div>
+          <ul class="singin-img-tt-u">
+            <li class="singin-img-tt-i" data-data=",38,38"></li>
+            <li class="singin-img-tt-i" data-data=",108,36"></li>
+            <li class="singin-img-tt-i" data-data=",177,42"></li>
+            <li class="singin-img-tt-i" data-data=",248,40"></li>
+            <li class="singin-img-tt-i" data-data=",40,111"></li>
+            <li class="singin-img-tt-i" data-data=",103,118"></li>
+            <li class="singin-img-tt-i" data-data=",172,116"></li>
+            <li class="singin-img-tt-i" data-data=",252,113"></li>
+          </ul>
+        </div>
+      </div>
+      <div class="signin-submit">
+        登录
+      </div>
+    </div>
+
+    <script type="text/javascript" src="js/jquery1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/laydate.js"></script>
+    <script type="text/javascript">
+      $(function(){
+        // 日历插件
+        laydate.render({
+          elem: '.info-date-time' //指定元素
+        });
+
+        // 初始化页面
+        // $.get("init",function(msg){},"json");
+
+        // 查询车票
+        $(".info-search").click(function(){
+          var start_city = $(".info-start-city").val();
+          var end_city = $(".info-end-city").val();
+          var date_time = $(".info-date-time").val();
+          if(!start_city) return false;
+          if(!end_city) return false;
+          if(!date_time) return false;
+          var url_checi = "chacheci?start_city="+start_city+"&end_city="+end_city+"&date_time="+date_time+"&sign=cy";
+          $.get(url_checi,function(msg){
+            if(!msg.status){
+              alert(msg.msg);
+              return false;
+            }
+            $(".content-tbody tr").remove();
+            var city_code = JSON.parse(msg.info).data.map;
+            var train_data = JSON.parse(msg.info).data.result;
+            train_data.forEach(function(item){
+              let temp = item.split("|");
+              var str = '<tr data-train_no="'+temp[2]+'" data-train_location="'+temp[15]+'" data-seat_types="'+temp[35]+'" data-from_station_no="'+temp[16]+'" data-to_station_no="'+temp[17]+'" data-train_date="'+temp[13]+'">'
+                        +'<td class="content-item">'+temp[3]+'</td>'
+                        +'<td><p class="content-p" data-fromStationTelecode="'+temp[6]+'">'+city_code[temp[6]]+'</p><p class="content-p" data-toStationTelecode="'+temp[7]+'">'+city_code[temp[7]]+'</p></td>'
+                        +'<td><p  class="content-p">'+temp[8]+'</p><p class="content-p">'+temp[9]+'</p></td>'
+                        +'<td class="content-item item-get-price">'+getTicNum(temp[10])+'</td>'
+                        +'<td class="content-item item-get-price">'+getTicNum(temp[32])+'</td>'
+                        +'<td class="content-item item-get-price">'+getTicNum(temp[31])+'</td>'
+                        +'<td class="content-item item-get-price">'+getTicNum(temp[30])+'</td>'
+                        +'<td class="content-item item-get-price">'+'--'+'</td>'
+                        +'<td class="content-item item-get-price">'+getTicNum(temp[23])+'</td>'
+                        +'<td class="content-item item-get-price">'+'--'+'</td>'
+                        +'<td class="content-item item-get-price">'+getTicNum(temp[28])+'</td>'
+                        +'<td class="content-item item-get-price">'+getTicNum(temp[24])+'</td>'
+                        +'<td class="content-item item-get-price">'+getTicNum(temp[29])+'</td>'
+                        +'<td class="content-item item-get-price">'+getTicNum(temp[26])+'</td>'
+                        +'<td class="content-item" data-str="'+temp[0]+'">'+'预定/刷票'+'</td>'
+                        +'</tr>';
+                $(".content-tbody").append(str);
+            });
+            $(".footer").show();
+          },"json");
+        });
+
+        // 查询价格
+        $(".content-tbody").on("click",".item-get-price",function(){
+          var this_ = $(this);
+          if(this_.parents("tr").attr("data-price")) return false;
+          var train_no = $(this).parents("tr").attr("data-train_no");
+          var from_station_no = $(this).parents("tr").attr("data-from_station_no");
+          var to_station_no = $(this).parents("tr").attr("data-to_station_no");
+          var seat_types = $(this).parents("tr").attr("data-seat_types");
+          var train_date = $(this).parents("tr").attr("data-train_date");
+          train_date = train_date.substr(0,4) +'-' + train_date.substr(4,2) + '-' + train_date.substr(6,2);
+          var url = "chajiage?train_no="+train_no+"&from_station_no="+from_station_no+"&to_station_no="+to_station_no+"&seat_types="+seat_types+"&train_date="+train_date;
+          $.get(url,function(msg){
+            console.log(msg);
+            var data = JSON.parse(msg.info);
+            console.log(data);
+            console.log(data.data);
+            var str = '<tr class="content-price">'
+                      +'<td></td>'
+                      +'<td></td>'
+                      +'<td></td>'
+                      +'<td></td>'
+                      +'<td>'+getTicPri(data.data.A9)+'</td>'   //商务座
+                      +'<td>'+getTicPri(data.data.M)+'</td>'    //一等座
+                      +'<td>'+getTicPri(data.data.O)+'</td>'    //二等座
+                      +'<td>'+getTicPri(data.data.A6)+'</td>'   //高级软卧
+                      +'<td>'+getTicPri(data.data.A4)+'</td>'   //软卧
+                      +'<td>'+getTicPri(data.data.F)+'</td>'    //动卧
+                      +'<td>'+getTicPri(data.data.A3)+'</td>'   //硬卧
+                      +'<td>'+getTicPri(0)+'</td>'              //软座
+                      +'<td>'+getTicPri(data.data.A1)+'</td>'   //硬座
+                      +'<td>'+getTicPri(data.data.WZ)+'</td>'   //无座
+                      +'<td></td>'
+                      +'</tr>';
+            this_.parents("tr").after(str);
+            this_.parents("tr").attr("data-price", true);
+          },"json");
+        });
+
+        // 点击登录按钮展示登录页面
+        $(".header-signin").on("click",function(){
+          // loading
+          $(".mask").show();
+          $.post('yzmImg',function(msg){
+            $(".signin-wrapper").show();
+            $(".signin-img").attr("src","upload/"+msg.info);
+          });
+        });
+
+        // 关闭登录页面
+        $(".signin-close").on("click", function() {
+          $(".mask").hide();
+          $(".signin-wrapper").hide();
+        });
+
+        // 刷新验证码图片
+        $(".singin-img-tt-title").on("click",function(){
+          $(".signin-img").attr("src","#");
+          $.post('yzmImg',function(msg){
+            $(".signin-img").attr("src","upload/"+msg.info);
+          });
+        });
+
+        // 验证验证码
+        $(".singin-img-tt-i").on("click",function(){
+          var iBg = $(this).attr("data-index");
+          if(!iBg || iBg == 0){
+            $(this).css("background","rgba(0,0,0,0.5)");
+            $(this).attr("data-index", 1);
+          }else{
+            $(this).css("background","transparent");
+            $(this).attr("data-index", 0);
+          }
+        });
+
+        //登录
+        $(".signin-submit").on("click",function(){
+          var uname = $(".signin-name-val").val();
+          var upass = $(".signin-pass-val").val();
+          if(!uname){
+            $(".signin-name-val").focus();
+            return false;
+          }
+          if(!upass){
+            $(".signin-pass-val").focus();
+            return false;
+          }
+          var yzm_data = "";
+          for(var i=0;i<$(".singin-img-tt-i").length;i++){
+            if($(".singin-img-tt-i").eq(i).attr("data-index") == 1){
+              yzm_data += $(".singin-img-tt-i").eq(i).attr("data-data");
+            }
+          }
+          yzm_data = yzm_data.replace(",","");
+          if(!yzm_data){
+            alert("请选择验证码！");
+            return false;
+          }
+          //验证验证码
+          // var yzm_url = "yzmVer?yzm="+yzm_data+"&uname="+uname+"&upass="+upass;
+          // var yzm_url = "login?yzm="+yzm_data+"&uname="+uname+"&upass="+upass;
+          var login_data = {
+            "yzm": yzm_data,
+            "uname": uname,
+            "upass": upass
+          };
+          $.post("login",login_data,function(msg){
+            console.log(msg);
+            if(msg.status){
+              var get_login_data = JSON.parse(msg.info);
+              $(".header-signin").html(get_login_data.username);
+              $(".header-signin").off("click");
+              $(".signin-wrapper").hide();
+              $(".mask").hide();
+            }else{
+              alert(msg.msg)
+              $(".signin-img").attr("src","#");
+              $(".singin-img-tt-i").css("background","transparent");
+              $(".singin-img-tt-i").attr("data-index", 0);
+              $.post('yzmImg',function(msg){
+                $(".signin-img").attr("src","upload/"+msg.info);
+              });
+            }
+          },"json");
+        });
+
+        // 起点终点交换
+        $(".info-change").on("click", function(){
+          var start_zh = $(".info-start-city").val();
+          var end_zh   = $(".info-end-city").val();
+          $(".info-start-city").val(end_zh);
+          $(".info-end-city").val(start_zh);
+          var index = $(this).attr("data-index");
+          index ++;
+          $(this).attr("data-index",index);
+          $(".info-change").css({
+            "transform": "rotateY("+360*index+"deg)",
+            "-webkit-transform": "rotateY("+360*index+"deg)"
+          });
+        });
+
+        //---------------------------------------------------------------------------------------
+        // 车票数量格式化
+        function getTicNum(str){
+          if(str){
+            return str;
+          }else{
+            return '--';
+          }
+        }
+
+        // 车票价格格式化
+        function getTicPri(str) {
+          if(str){
+            return str;
+          }else{
+            return '';
+          }
+        }
+
+
+      });
+    </script>
+  </body>
+</html>
