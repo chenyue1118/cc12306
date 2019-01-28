@@ -25,14 +25,7 @@ app.get('/', (req, res) => {
 app.post('/yzmImg', (req, res) => {
   let imgName = new Date().getDate() + Math.random() + '.png';
   request.get({url: 'https://kyfw.12306.cn/passport/captcha/captcha-image?login_site=E&module=login&rand=sjrand&'+Math.random()})
-  .on('response',(response) => {
-    // let rCookie = response.headers['set-cookie'];
-    // if(rCookie){
-    //   for(let i=0;i<rCookie.length;i++){
-    //     cookie[rCookie[i].split(";")[0].split("=")[0]] = rCookie[i].split(";")[0].split("=")[1];
-    //   }
-    // }
-  })
+  .on('response',(response) => {})
   .on('end', (err) => {
     if(err) console.log(err);
     res.send({'status': true,'info': imgName,'msg': '获取验证码图片成功'});
@@ -40,6 +33,7 @@ app.post('/yzmImg', (req, res) => {
   .pipe(fs.createWriteStream('./public/upload/'+imgName));
 });
 
+// 登录
 app.post('/login', (req, res) => {
   let yzm_data = {
     "answer": req.body.yzm,
@@ -68,6 +62,45 @@ app.post('/login', (req, res) => {
     }
   });
 });
+
+//查车次
+app.get('/chacheci', (req, res) => {
+  let start_city = req.query.start_city;
+  let end_city = req.query.end_city;
+  let date_time = req.query.date_time;
+  let start_city_code = getCityCode(start_city);
+  let end_city_code = getCityCode(end_city);
+  if(!start_city_code || !end_city_code){
+    res.send({'status': false,'info': '','msg': '出发地或目的地错误！'});
+    return false;
+  }
+  let leftTicketData = 'leftTicketDTO.train_date=' + date_time +
+                       '&leftTicketDTO.from_station='+ start_city_code +
+                       '&leftTicketDTO.to_station=' + end_city_code +
+                       '&purpose_codes=ADULT';
+  let option_checi = {
+    // url	: 'https://kyfw.12306.cn/otn/leftTicket/queryZ?'+ leftTicketData,
+    // url : 'https://kyfw.12306.cn/otn/leftTicket/queryO?'+ leftTicketData,
+    url	: 'https://kyfw.12306.cn/otn/leftTicket/queryZ?'+ leftTicketData,
+    method: 'GET',
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36'
+    }
+  };
+  request(option_checi, (error, response, body) => {
+    if(error) console.log(error);
+    if(response.statusCode == 200 && body.indexOf("true") > 0){
+      res.send({'status': true,'info': body,'msg': ''});
+    }else{
+      res.send({'status': false,'info': '','msg': '数据请求失败！'});
+    }
+  });
+});
+
+// 测试
+setInterval(()=> {
+  checi()
+}, 5000)
 
 const PORT = 9001;
 app.listen(PORT, () => {
@@ -150,4 +183,77 @@ function getLogin(res,uname,upass) {
       res.send({'status': 0, 'msg': '用户名或者密码错误！'});
     }
   });
+}
+
+function checi() {
+  // https://kyfw.12306.cn/otn/leftTicket/queryZ?leftTicketDTO.train_date=2019-01-28&leftTicketDTO.from_station=BJP&leftTicketDTO.to_station=JJG&purpose_codes=ADULT
+  let from_station = "BJP";
+  let to_station = "JJG";
+  let train_date = "2019-02-05";
+  let leftTicketData = 'leftTicketDTO.train_date=' + train_date +
+                       '&leftTicketDTO.from_station='+ from_station +
+                       '&leftTicketDTO.to_station=' + to_station +
+                       '&purpose_codes=ADULT';
+  let option_checi = {
+    // url	: 'https://kyfw.12306.cn/otn/leftTicket/queryZ?'+ leftTicketData,
+    // url : 'https://kyfw.12306.cn/otn/leftTicket/queryO?'+ leftTicketData,
+    url	: 'https://kyfw.12306.cn/otn/leftTicket/queryZ?'+ leftTicketData,
+    method: 'GET',
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36'
+    }
+  };
+  request(option_checi, (error, response, body) => {
+    if(error) console.log(error);
+    if(response.statusCode == 200 && body.indexOf("true") > 0){
+      // 1yz83sdJAiXeH7hBHp8Pf7hLN8A5qd74Ilu4LdQcsxfRWc1PPkDT5OdDeqxgtyt81MWRIxNnE8C0%0AYhtn3lHKUFHW7dHiaF35LUrXE7U72X55HIZ%2FcI7UtLIU4uRReidqVpfU67bWfn6RcfBBdEnI29W9%0A7CS4UOkOokPuMYLVoeGDmep4fHt%2FpHl8VrR8KMyZuRfESvE5K1A0uYcxH%2F74ZnrqCrow%2Bc5MJRzn%0AcFWt9638wLHDiSXuQWp2DOc79vVFTC4eQCy98uJjJ8%2FCnA2JWzwhwlYwxyY%2BFgLF8GU5AzjiHG57%0AZSKhUUignZ6PoqlbWkkOFQ%3D%3D|预订|240000Z1330M|Z133|BXP|JGG|BXP|JJG|19:15|06:18|11:03|Y|g0RXF9Purbl1%2F0PwgASJuj5QJv9a0i9cVKv%2FKvmEpgb1OXPFBt1RGL9wNwMCi1qpf831RFOOYn8%3D|20190128|3|P3|01|05|0|0||无||无|||无||1|无|||||1040306010|14361|0|0|null
+      let checiResult = JSON.parse(body).data.result;
+      checiResult.forEach((item) => {
+        let temp = item.split("|");
+        // console.log(temp[3]);
+        if (temp[3] == "Z71" || temp[3] == "Z133" || temp[3] == "Z65" || temp[3] == "Z67" || temp[3] == "K105") {
+          console.log(`${temp[3]}---硬卧-${temp[28]}---软卧-${temp[23]}---硬座-${temp[29]}---二等座-${temp[30]}`);
+          // temp[30]  二等座
+          // temp[23]  软卧
+          // temp[28]  硬卧
+          // temp[29]  硬座
+          // if ((temp[30] == "有" || temp[30] > 0) || (temp[23] == "有" || temp[23] > 0) || (temp[28] == "有" || temp[28] > 0) || (temp[29] == "有" || temp[29] > 0)) {
+          //   console.log(" 抢到票了");
+          // }
+
+          if (temp[28] == "有" || temp[28] > 0) {
+            // console.log("抢到硬卧票了");
+          } else if (temp[23] == "有" || temp[23] > 0) {
+            // console.log("抢到软卧票了");
+          } else if (temp[30] == "有" || temp[30] > 0) {
+            // console.log("抢到二等座票了");
+          } else if (temp[29] == "有" || temp[29] > 0) {
+            // console.log("抢到硬座票了");
+          }
+        }
+      })
+    }else{
+      console.log({'status': false,'info': '','msg': '数据请求失败！'});
+    }
+  });
+}
+
+// 下订单
+function saveOrder() {
+
+}
+
+// 获取城市的code
+function getCityCode(name){
+  let code;
+  let allStationArr = [];
+  for(let i in allStation){
+    allStationArr.push(allStation[i]);
+  }
+  allStationArr.forEach((item) => {
+    if(item.name == name){
+      code = item.code;
+    }
+  });
+  return code;
 }
